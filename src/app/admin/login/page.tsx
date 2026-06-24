@@ -12,16 +12,21 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const res = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    })
-    if (res.ok) {
-      router.push('/admin')
-      router.refresh()
-    } else {
-      setError('Sai mật khẩu')
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+      if (res.ok) {
+        router.push('/admin')
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setError(res.status === 500 ? 'Lỗi server — kiểm tra biến môi trường' : 'Sai mật khẩu')
+        setLoading(false)
+      }
+    } catch {
+      setError('Không thể kết nối server')
       setLoading(false)
     }
   }
